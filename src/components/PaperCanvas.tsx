@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import paper, { Path, Point, Color, project } from "paper";
+import paper, { Path, Point, Color, project, PointText, view } from "paper";
 import { Rectangle } from "paper/dist/paper-core";
 
 export default function PaperCanvas() {
@@ -10,15 +10,30 @@ export default function PaperCanvas() {
 
     paper.setup(canvasRef.current);
 
-    // Create rectangle
-    const path = new Path.Rectangle(new Point(75, 75), [75, 75]);
-    path.fillColor = new Color("red");
+    const text = new paper.PointText({
+      point: paper.view.center,
+      justification: "center",
+      fontSize: 30,
+      fillColor: new paper.Color("black"),
+    });
 
-    // Animate rotation
+    let destination = new paper.Point(
+      Math.random() * paper.view.size.width,
+      Math.random() * paper.view.size.height
+    );
+
     paper.view.onFrame = () => {
-      path.rotate(3);
-      if (path.fillColor) {
-        path.fillColor.hue += 1;
+      const vector = destination.subtract(text.position);
+
+      text.position = text.position.add(vector.divide(30));
+
+      text.content = Math.round(vector.length).toString();
+
+      if (vector.length < 5) {
+        destination = new paper.Point(
+          Math.random() * paper.view.size.width,
+          Math.random() * paper.view.size.height
+        );
       }
     };
 
